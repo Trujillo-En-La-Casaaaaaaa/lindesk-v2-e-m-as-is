@@ -3,7 +3,7 @@ import type { Order, Product } from "../../domain/models.js";
 import type { OrderPort, ProductPort, UnitOfWorkPort } from "../../ports/index.js";
 
 const productColumns = 'id, sku, name, price_cents AS "priceCents", stock';
-const orderColumns = 'id, customer_email AS "customerEmail", status, product_id AS "productId", quantity, total_cents AS "totalCents", created_at AS "createdAt"';
+const orderColumns = 'id, customer_email AS "customerEmail", status, product_id AS "productId", quantity, total_cents AS "totalCents", created_at AS "createdAt", cancelled_at AS "cancelledAt", cancellation_reason AS "cancellationReason"';
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 
@@ -18,6 +18,10 @@ class Products implements ProductPort {
   }
   async decrementStock(id: string, quantity: number): Promise<boolean> {
     const result = await this.db.query("UPDATE products SET stock = stock - $2 WHERE id = $1 AND stock >= $2", [id, quantity]);
+    return result.rowCount === 1;
+  }
+  async restoreStock(id: string, quantity: number): Promise<boolean> {
+    const result = await this.db.query("UPDATE products SET stock = stock + $2 WHERE id = $1", [id, quantity]);
     return result.rowCount === 1;
   }
 }
@@ -38,6 +42,13 @@ class Orders implements OrderPort {
     const result: QueryResult<Order> = await this.db.query(
       `UPDATE orders SET status = 'SHIPPED' WHERE id = $1 AND status = 'CONFIRMED' RETURNING ${orderColumns}`,
       [id]
+    );
+    return result.rows[0] ?? null;
+  }
+  async cancel(id: string, reason: string, cancelledAt: string): Promise<Order | null> {
+    const result: QueryResult<Order> = await this.db.query(
+      `UPDATE orders SET status = 'CANCELLED', cancelled_at = $2, cancellation_reason = $3 WHERE id = $1 AND status = 'CONFIRMED' RETURNING ${orderColumns}`,
+      [id, cancelledAt, reason]
     );
     return result.rows[0] ?? null;
   }

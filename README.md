@@ -1,10 +1,19 @@
-# ShopFlow AS-IS — evolución · complejidad media (E-M)
+# ShopFlow — E-M (AS-IS → resultado)
 
-Este repositorio es el **sistema de partida** (fixture congelado `F2-medium`) que se le entregó a LinDesk en el escenario **E-M**. **No es un resultado de LinDesk.**
+Este repositorio muestra la **evolución** como historial de Git (dos commits):
 
-Compare con el resultado: https://github.com/Trujillo-En-La-Casaaaaaaa/lindesk-v2-e-m
+1. Tag [`as-is`](https://github.com/Trujillo-En-La-Casaaaaaaa/lindesk-v2-e-m-as-is/tree/as-is) — fixture congelado, **antes** de LinDesk.
+2. Rama `main` (este árbol) — resultado de LinDesk, corrida `20260919-002726`.
 
-Identificador de la corrida del resultado: `20260919-002726` (solo trazabilidad).
+**Diff:** https://github.com/Trujillo-En-La-Casaaaaaaa/lindesk-v2-e-m-as-is/compare/as-is...main
+
+El encargo congelado está en [`TASK.md`](./TASK.md). Este paquete es solo código fuente.
+
+---
+
+# ShopFlow — evolución · complejidad media (E-M)
+
+Paquete de entrevista (artefacto congelado). Contiene el árbol de ShopFlow del escenario **E-M**. **No es LinDesk**; es el software de dominio que se evalúa.
 
 ## Qué es ShopFlow
 
@@ -33,27 +42,41 @@ Reglas de cancelación cuando sí aplica:
 - reintentos repetidos no deben restaurar stock dos veces.
 
 
-## Arquitectura de este baseline
+## Este escenario (E-M)
 
-Tres repositorios: `shopflow-web` (React), `shopflow-api` (hexagonal), `shopflow-infra` (Compose, PostgreSQL, emulador de notificaciones). LinDesk debía conservar esas fronteras.
+| | |
+|---|---|
+| Código | `E-M` |
+| Ciclo de vida | Evolución (se parte de un ShopFlow ya existente) |
+| Complejidad arquitectónica | Media — preservar tres repositorios y hexagonal |
+| Identificador de corrida | `20260919-002726` (solo trazabilidad) |
 
-En este AS-IS el comportamiento ya cubre catálogo, inventario, pedidos, envío y notificación de confirmación. **No incluye cancelación de pedido por el cliente.**
+Baseline **antes** de LinDesk (AS-IS): https://github.com/Trujillo-En-La-Casaaaaaaa/lindesk-v2-e-m-as-is
 
-### Encargo que se aplicó **sobre** este baseline
+Inspeccione primero el AS-IS y después este resultado.
 
-Añadir cancelación de pedido en web, API e integración de notificaciones, sin rediseñar el hexagonal.
 
-El texto **exacto** está en [`TASK.md`](./TASK.md) (inglés, congelado). Léalo aquí y luego abra el repositorio de resultado.
+### Arquitectura pedida
+
+El baseline ya separa `shopflow-web`, `shopflow-api` (hexagonal) y `shopflow-infra`. Hay que conservar responsabilidades y fronteras hexagonales. No rediseñar salvo lo estrictamente necesario para la cancelación.
+
+### Encargo (resumen)
+
+Añadir **cancelación de pedido** en frontend, API e integración de notificaciones ya existentes, con pruebas. Preservar funcionalidad previa. Sin repositorios nuevos, sin refactor no relacionado.
+
+El texto **exacto** del encargo está en [`TASK.md`](./TASK.md). Úselo como contrato.
 
 ### Carpetas de este árbol
 
-- `shopflow-web/`
-- `shopflow-api/`
-- `shopflow-infra/`
+- `shopflow-web/` — frontend existente.
+- `shopflow-api/` — API hexagonal existente.
+- `shopflow-infra/` — Compose y emulador existentes.
 
 ## Cómo usarlo en la entrevista
 
-1. Inspeccione este baseline primero (cómo está hecho ShopFlow hoy).
-2. Lea `TASK.md`.
-3. Pase al repositorio de resultado y compare. En evolución debe preservarse la arquitectura; en migración debe cambiar de forma controlada y **sin** añadir cancelación.
-4. Este paquete es **solo código fuente**. Etapa B no está incluida.
+1. Lea primero `TASK.md` (el encargo congelado; está en inglés porque así se le dio al sistema).
+2. Recorra los directorios de producto listados arriba. Este paquete es **solo código fuente** (sin `node_modules`, builds ni informes de análisis).
+3. Juzgue el código frente al encargo: requisitos funcionales **y** restricciones arquitectónicas. Un sistema que “parece funcionar” pero ignora los límites del escenario no cumple el contrato.
+4. No trate este README como veredicto de calidad: es contexto. La puntuación es del experto sobre el código.
+5. Etapa B (`AGENTS.md`, grafo C4) **no** está en este repositorio. LinDesk en ejecución se muestra por RDP, aparte de este árbol de GitHub.
+

@@ -9,11 +9,13 @@ CREATE TABLE products (
 CREATE TABLE orders (
   id UUID PRIMARY KEY,
   customer_email TEXT NOT NULL,
-  status TEXT NOT NULL CHECK (status IN ('CONFIRMED', 'SHIPPED')),
+  status TEXT NOT NULL CHECK (status IN ('CONFIRMED', 'SHIPPED', 'CANCELLED')),
   product_id TEXT NOT NULL REFERENCES products(id),
   quantity INTEGER NOT NULL CHECK (quantity > 0),
   total_cents INTEGER NOT NULL CHECK (total_cents >= 0),
-  created_at TIMESTAMPTZ NOT NULL
+  created_at TIMESTAMPTZ NOT NULL,
+  cancelled_at TIMESTAMPTZ,
+  cancellation_reason TEXT
 );
 
 INSERT INTO products (id, sku, name, price_cents, stock) VALUES

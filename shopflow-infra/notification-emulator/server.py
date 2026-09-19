@@ -4,6 +4,9 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 records = []
 
+# Message types the emulator accepts (see CANCELLATION_CONTRACT.md section 3).
+accepted_types = ("ORDER_CONFIRMATION", "ORDER_CANCELLATION")
+
 
 class Handler(BaseHTTPRequestHandler):
     def send_json(self, status, value):
@@ -29,8 +32,8 @@ class Handler(BaseHTTPRequestHandler):
         try:
             length = int(self.headers.get("Content-Length", "0"))
             message = json.loads(self.rfile.read(length))
-            if message.get("type") != "ORDER_CONFIRMATION" or not message.get("orderId"):
-                raise ValueError("invalid confirmation")
+            if message.get("type") not in accepted_types or not message.get("orderId"):
+                raise ValueError("invalid notification")
             record = {"id": f"notification-{len(records) + 1:04d}", **message}
             records.append(record)
             self.send_json(201, record)

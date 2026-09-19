@@ -28,6 +28,9 @@ export function createApp(service: ShopService) {
   app.post("/admin/orders/:id/ship", async (req, res, next) => {
     try { res.json(await service.shipOrder(req.params.id)); } catch (error) { next(error); }
   });
+  app.post("/orders/:id/cancel", async (req, res, next) => {
+    try { res.json(await service.cancelOrder(req.params.id, String(req.body?.reason ?? ""))); } catch (error) { next(error); }
+  });
 
   app.use((error: unknown, _req: Request, res: Response, _next: NextFunction) => {
     if (error instanceof DomainError) {

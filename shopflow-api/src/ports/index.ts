@@ -1,15 +1,17 @@
-import type { Order, OrderConfirmation, Product } from "../domain/models.js";
+import type { Order, OrderCancellation, OrderConfirmation, Product } from "../domain/models.js";
 
 export interface ProductPort {
   list(): Promise<Product[]>;
   getById(id: string): Promise<Product | null>;
   decrementStock(id: string, quantity: number): Promise<boolean>;
+  restoreStock(id: string, quantity: number): Promise<boolean>;
 }
 
 export interface OrderPort {
   getById(id: string): Promise<Order | null>;
   create(order: Order): Promise<void>;
   markShipped(id: string): Promise<Order | null>;
+  cancel(id: string, reason: string, cancelledAt: string): Promise<Order | null>;
 }
 
 export interface UnitOfWorkPort {
@@ -18,6 +20,7 @@ export interface UnitOfWorkPort {
 
 export interface NotificationPort {
   sendConfirmation(message: OrderConfirmation): Promise<void>;
+  sendCancellation(message: OrderCancellation): Promise<void>;
 }
 
 export interface IdPort {

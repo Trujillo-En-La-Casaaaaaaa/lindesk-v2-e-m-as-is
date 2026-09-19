@@ -8,6 +8,7 @@ export default function App() {
   const [email, setEmail] = useState("buyer@example.com");
   const [lookup, setLookup] = useState("");
   const [order, setOrder] = useState<Order | null>(null);
+  const [reason, setReason] = useState("");
   const [error, setError] = useState("");
 
   const refreshProducts = () => api.products().then((items) => {
@@ -40,6 +41,13 @@ export default function App() {
     try { setOrder(await api.shipOrder(order.id)); } catch (cause) { setError((cause as Error).message); }
   }
 
+  async function cancel(event: FormEvent) {
+    event.preventDefault();
+    if (!order) return;
+    setError("");
+    try { setOrder(await api.cancelOrder(order.id, reason)); } catch (cause) { setError((cause as Error).message); }
+  }
+
   return <main>
     <header><p className="eyebrow">THESIS FIXTURE · F2</p><h1>ShopFlow</h1><p>Deterministic catalog, inventory, and order fulfillment.</p></header>
     {error && <p role="alert" className="error">{error}</p>}
@@ -64,6 +72,12 @@ export default function App() {
     {order && <div className="order">
       <p><b>ID</b> {order.id}</p><p><b>Status</b> <span className="status">{order.status}</span></p>
       <p><b>Quantity</b> {order.quantity}</p><p><b>Total</b> ${(order.totalCents / 100).toFixed(2)}</p>
+      {order.status === "CANCELLED" && order.cancelledAt && <p><b>Cancelled at</b> {order.cancelledAt}</p>}
+      {order.status === "CANCELLED" && order.cancellationReason && <p><b>Cancellation reason</b> {order.cancellationReason}</p>}
+      {order.status === "CONFIRMED" && <form className="cancel" onSubmit={cancel}>
+        <label>Reason<input value={reason} onChange={(event) => setReason(event.target.value)}/></label>
+        <button type="submit">Cancel order</button>
+      </form>}
       {order.status === "CONFIRMED" && <button onClick={ship}>Mark SHIPPED</button>}
     </div>}</section>
   </main>;

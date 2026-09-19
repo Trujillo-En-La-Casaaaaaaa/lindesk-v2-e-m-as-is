@@ -1,4 +1,4 @@
-export type OrderStatus = "CONFIRMED" | "SHIPPED";
+export type OrderStatus = "CONFIRMED" | "SHIPPED" | "CANCELLED";
 
 export interface Product {
   id: string;
@@ -16,12 +16,21 @@ export interface Order {
   quantity: number;
   totalCents: number;
   createdAt: string;
+  cancelledAt: string | null;
+  cancellationReason: string | null;
 }
 
 export interface OrderConfirmation {
   type: "ORDER_CONFIRMATION";
   orderId: string;
   customerEmail: string;
+}
+
+export interface OrderCancellation {
+  type: "ORDER_CANCELLATION";
+  orderId: string;
+  customerEmail: string;
+  reason: string;
 }
 
 export class DomainError extends Error {

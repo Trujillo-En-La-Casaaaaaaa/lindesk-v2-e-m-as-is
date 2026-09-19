@@ -1,5 +1,5 @@
 export interface Product { id: string; sku: string; name: string; priceCents: number; stock: number }
-export interface Order { id: string; customerEmail: string; status: "CONFIRMED" | "SHIPPED"; productId: string; quantity: number; totalCents: number; createdAt: string }
+export interface Order { id: string; customerEmail: string; status: "CONFIRMED" | "SHIPPED" | "CANCELLED"; productId: string; quantity: number; totalCents: number; createdAt: string; cancelledAt?: string | null; cancellationReason?: string | null }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`/api${path}`, {
@@ -16,5 +16,6 @@ export const api = {
   order: (id: string) => request<Order>(`/orders/${encodeURIComponent(id)}`),
   createOrder: (input: { productId: string; quantity: number; customerEmail: string }) =>
     request<Order>("/orders", { method: "POST", body: JSON.stringify(input) }),
-  shipOrder: (id: string) => request<Order>(`/admin/orders/${encodeURIComponent(id)}/ship`, { method: "POST" })
+  shipOrder: (id: string) => request<Order>(`/admin/orders/${encodeURIComponent(id)}/ship`, { method: "POST" }),
+  cancelOrder: (id: string, reason: string) => request<Order>(`/orders/${encodeURIComponent(id)}/cancel`, { method: "POST", body: JSON.stringify({ reason }) })
 };
